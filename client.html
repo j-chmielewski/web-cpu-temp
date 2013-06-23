@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>D3 Demo: SVG with data</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="lib/d3.v3.js"></script>
+    <script type="text/javascript" src="lib/jquery-1.10.1.js"></script>
+    <style type="text/css">
+      /* No style rules here yet */
+      </style>
+    </head>
+  <body>
+    <script type="text/javascript">
+
+      //Width and height
+      var svgWidth = 1000;
+      var svgHeight = 700;
+      
+      var barHeight = 200;
+      var maxVolume = 100;
+
+      //Create SVG element
+      var svg = d3.select("body")
+            .append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight);
+
+      var bar = svg.append("rect")
+      .attr("height", barHeight)
+      .attr("fill", "rgba(0, 255, 100, 1)")
+      .attr("stroke", "#d7d7d7")
+      .attr("stroke-width", 10);
+
+      var label = svg.append("text")
+      .attr("y", barHeight/2)
+      .attr("font-family", "sans-serif")
+      .attr("font-size", 50)
+      .attr("fill", "gray");
+      
+      setInterval(function() {
+	  $.get('volume', function(v) {
+	      changeVolume(parseInt(v));
+	  })
+      }, 500);
+
+      function changeVolume(v) {
+	  svg.selectAll("rect")
+  	  .attr("fill", "rgba(" + Math.round(v * 255/100) + ", 255, 100, 1)")
+	  .transition()
+	  .attr("width", v * svgWidth/maxVolume)
+	  .duration(500)
+	  .ease("elastic");
+	  
+	  label
+	  .text(v + '%')
+	  .transition()
+	  .attr("x", v * svgWidth/maxVolume - 120)
+	  .duration(500)
+	  .ease("elastic");
+      }
+
+      </script>
+    </body>
+</html>
