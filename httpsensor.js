@@ -21,11 +21,21 @@ function handler (req, res) {
 
 io.sockets.on('connection', function (socket) {
 
-    var cmd = "amixer get Master | egrep -n 'Front Left:' | egrep -o '[0-9]{1,3}%' | egrep -o '[0-9]{1,2}'";
+    var cmd = "sensors | grep Core | awk '{print $3}'| egrep -o '[0-9]{1,3}'"
     setInterval(function() {
 	var child = exec(cmd, function (error, stdout, stderr) {
-            //io.sockets.emit('updatechat', socket.username, data);
-            socket.emit('cpu-temp', { 'temp': stdout.trim() });
+	    var temps = stdout.split("\n");
+	    var sum = 0;
+	    var n = 0;
+	    for(t in temps) {
+		var int = parseInt(temps[t]);
+		if(int) {
+		    sum += int;
+		    n++;
+		}
+	    }
+	    var avg = sum / n;
+            socket.emit('cpu-temp', { 'temp': avg });
 	});     
     }, 200)
 
